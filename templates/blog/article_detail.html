@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block title %} {{article.title}} {% endblock %}
+{% block content %}
+<!-- Page Content -->
+
+
+<!--suppress ALL -->
+<div class="heading-page header-text">
+    <section class="page-heading">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="text-content">
+                        <h4>Post Details</h4>
+                        <h2>{{ article.title }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Banner Ends Here -->
+
+
+<section class="blog-posts grid-system">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="all-blog-posts">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="blog-post">
+                                <div class="blog-thumb">
+                                    {% if article.image %}
+                                    <img src="{{ article.image.url }}" alt="">
+                                    {% else %}
+                                    <img src="{% static 'icons/noimg.jpg' %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="down-content">
+                                    <span>Lifestyle</span>
+                                    <a href="{{article.get_absolute_url}}"><h4>{{article.title}}</h4></a>
+                                    <ul class="post-info">
+                                        {% if article.author.get_full_name %}
+                                        <li><a href="#">{{article.author.get_full_name}}</a></li>
+                                        {% else %}
+                                        <li><a href="#">{{article.author}}</a></li>
+                                        {% endif %}
+                                        <li><a href="#">{{article.created}}</a></li>
+                                        <li><a href="#">10 Comments</a></li>
+                                    </ul>
+                                    <p>{{article.text}}</p>
+                                     <div class="post-options">
+                                        <div class="row">
+                                            <div class="col-6">
+                                              <ul class="post-tags">
+                                                {% if is_liked %}
+                                                <li><a onclick="like('{{article.slug}}', '{{article.pk}}')"  ><i style="font-size:20px" id='like' class="fa fa-heart"></i></a><span id="count">{{article.likes.all.count}}</span></li>
+                                                {% else %}
+                                                <li><a onclick="like('{{article.slug}}', '{{article.pk}}')" ><i style="font-size:20px" id="like" class="fa fa-heart-o" ></i></a><span id="count">{{article.likes.all.count}}</span></li>
+                                                {% endif %}
+                                              </ul>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <ul class="post-share">
+                                                    <li><i class="fa fa-share-alt"></i></li>
+                                                    <li>{% post_to_telegram "{{article.title}}" article.get_absolute_url "Telegram" %}
+                                                    </li>
+                                                    ,
+                                                    <li>{% post_to_whatsapp article.get_absolute_url "whatsapp" %}</li>
+                                                    ,
+                                                    <li>
+
+                                                    </li>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="sidebar-item comments">
+                                <div class="sidebar-heading">
+                                    <h2> تعداد نظر ها |{{article.comments.count}}</h2>
+                                </div>
+                                <div class="content">
+                                    <ul>
+                                        {% for comment in article.comments.all %}
+                                        {% if comment.parent == None %}
+                                        <li>
+                                            <div class="author-thumb">
+                                                {% if comment.author.profile.image %}
+                                                <img src="{{comment.author.profile.image.url}}"
+                                                     style="border-radius:100%" alt="">
+                                                {% else %}
+                                                <img src="{% static '/icons/user.png' %}" style="border-radius:100%"
+                                                     alt="">
+                                                {% endif %}
+                                            </div>
+                                            <div class="right-content">
+                                                <h4>{{comment.author}}<span>{{comment.created}}</span></h4>
+                                                <p>{{comment.text}}</p>
+                                                <button onclick="replyToComment({{ comment.id }})"
+                                                        class="btn btn-primary">
+                                                    reply
+                                                </button>
+                                            </div>
+                                        </li>
+
+                                        {% for reply in comment.replays.all %}
+                                        <li class="replied">
+                                            <div class="author-thumb">
+                                                {% if reply.author.profile.image %}
+                                                <img src="{{reply.author.profile.image.url}}"
+                                                     style="border-radius:100%" alt="">
+                                                {% else %}
+                                                <img src="{% static '/icons/user.png' %}" style="border-radius:100%"
+                                                     alt="">
+                                                {% endif %}
+                                            </div>
+                                            <div class="right-content">
+                                                <h4>{{reply.author}}<span>{{reply.created}}</span></h4>
+                                                <p>{{reply.text}}</p>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                        {% endif %}
+
+                                        {% endfor %}
+
+
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% if request.user.is_authenticated %}
+                        <div class="col-lg-12">
+                            <div class="sidebar-item submit-comment">
+                                <div class="sidebar-heading">
+                                    <h2>Your comment</h2>
+                                </div>
+                                <div class="content">
+                                    <form id="commentForm" action="#" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" id="parent_id" name="parent_id" value="">
+                                        <textarea id="text" name="text" rows="4" placeholder="your comment..."
+                                                  cols="50"></textarea><br>
+                                        <button type="submit">Submit Comment</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}<br><br>
+                        <a href="{% url 'account:login' %}" class="btn btn-primary">go login</a>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    function replyToComment(commentId) {
+        document.getElementById('parent_id').value = commentId;
+        document.getElementById('text').focus();
+    }
+</script>
+{% endblock %}
